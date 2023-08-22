@@ -47,6 +47,7 @@ struct eml_word* eml_stow(char *s)
     int len;
     struct eml_word *w;
     int i;
+    const char *tptr;
 
     /* initialize things */
     len = strlen(s);
@@ -81,6 +82,15 @@ struct eml_word* eml_stow(char *s)
     } else {
         w->field.s = malloc(len+1);
         strcpy(w->field.s, s);
+
+        /* detect tokens */
+        if(len == 1) {
+            for(tptr = EML_TOKENS; *tptr; tptr++) {
+                if(*tptr == *(w->field.s)) {
+                    w->type = TOKEN;
+                }
+            }
+        }
     }
     
     return w;
@@ -108,7 +118,7 @@ struct eml_word* eml_dtow(double d)
 static char *word_as_str(char *bstart, struct eml_word *w)
 {
     /* handle the easy case */
-    if(w->type == WORD) {
+    if(w->type == WORD || w->type == TOKEN) {
         return w->field.s;
     }
 

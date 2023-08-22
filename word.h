@@ -27,6 +27,8 @@
 #ifndef WORD_H
 #define WORD_H
 
+/* tokens and word types */
+const char *EML_TOKENS = "[]";
 enum eml_word_type { WORD=0, INTEGER, FLOAT, TOKEN };
 
 union eml_word_field 
