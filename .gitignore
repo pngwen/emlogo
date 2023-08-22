@@ -1,3 +1,16 @@
+# Non-executables only
+*
+!Makefile
+!*/
+!*.*
+
+# repl stuff
+.ccls-cache
+.replit
+replit.nix
+*repl*
+
+
 # Prerequisites
 *.d
 
