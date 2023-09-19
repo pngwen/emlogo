@@ -38,53 +38,66 @@ static char buf[200];
 
 /* helper function to allocate words */
 static struct eml_word *eml_word_alloc() {
-  return malloc(sizeof(struct eml_word));
+  return malloc(sizeof(struct eml_word));  
+}
+
+/* helper function to compute hash for bytes */
+static unsigned int byte_hash(void *ptr, int n) {
+  unsigned char *byte;
+  unsigned int hash = 0;
+  for (byte = ptr; n; n--, byte++) {
+    hash += 31 * toupper(*byte);
+  }
+
+  return hash;
 }
 
 /* word creation functions */
 struct eml_word *eml_stow(char *s) {
   int len;
   struct eml_word *w;
+  enum eml_word_type type;
   int i;
   const char *tptr;
 
   /* initialize things */
   len = strlen(s);
-  w = eml_word_alloc();
 
   /* scan the string for numeric type */
   if ((len > 1 && *s == '-') || isdigit(*s)) {
-    w->type = INTEGER;
+    type = INTEGER;
   }
   if (*s == '.' && len > 1) {
     w->type = FLOAT;
   }
 
-  for (i = 1; w->type != WORD && i < len; i++) {
-
+  for (i = 1; type != WORD && i < len; i++) {
     /* digits pass */
     if (isdigit(s[i])) {
       continue;
     }
 
     /* a float is born */
-    if (w->type == INTEGER && s[i] == '.') {
-      w->type = FLOAT;
+    if (type == INTEGER && s[i] == '.') {
+      type = FLOAT;
       continue;
     }
 
     /* aaaand, if we make it here, it's just a word */
-    w->type = WORD;
+    type = WORD;
   }
 
   /* handle the types */
-  if (w->type == INTEGER) {
-    w->field.i = atoi(s);
-  } else if (w->type == FLOAT) {
-    w->field.d = atof(s);
+  if (type == INTEGER) {
+    w = eml_itow(atoi(s));
+  } else if (type == FLOAT) {
+    w = eml_dtow(atof(s));
   } else {
+    w = eml_word_alloc();
     w->field.s = malloc(len + 1);
+    w->type = type;
     strcpy(w->field.s, s);
+    w->hash = byte_hash(s, len);
 
     /* detect tokens */
     if (len == 1) {
@@ -103,6 +116,7 @@ struct eml_word *eml_itow(int i) {
   struct eml_word *w = eml_word_alloc();
   w->type = INTEGER;
   w->field.i = i;
+  w->hash = byte_hash(&(w->field.i), sizeof(int));
   return w;
 }
 
@@ -110,6 +124,7 @@ struct eml_word *eml_dtow(double d) {
   struct eml_word *w = eml_word_alloc();
   w->type = FLOAT;
   w->field.d = d;
+  w->hash = byte_hash(&(w->field.d), sizeof(double));
   return w;
 }
 
@@ -167,4 +182,23 @@ void eml_free_word(struct eml_word *w) {
   }
 
   free(w);
+}
+
+/* 
+ * Returns 1 if w1 = w2, 0 otherwise
+ */
+int eml_word_equals(struct eml_word *w1, struct eml_word *w2) {
+  /* first compare their easy parts */
+  if(w1->type != w2->type || w1->hash != w2->hash) {
+    return 0;
+  }
+
+  /* compare their fields according to type */
+  if(w1->type == INTEGER) {
+    return w1->field.i == w2->field.i;
+  } else if(w2->type == FLOAT) {
+    return w1->field.d == w2->field.d;
+  } else {
+    return strcasecmp(w1->field.s, w2->field.s) == 0;
+  }
 }
