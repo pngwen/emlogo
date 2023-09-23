@@ -3,19 +3,19 @@
  * Purpose: This is the header file for a hashmap which maps words to void pointers.
  *
  * MIT License
- * 
+ *
  * Copyright (c) 2023 Robert Lowe
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -29,16 +29,16 @@
 #include "word.h"
 
 struct eml_hashmap_bucket {
-  struct eml_word *word;
-  void *data;
+    struct eml_word *word;
+    void *data;
 };
 
 
 struct eml_bucket {
-  struct eml_hashmap_entry *bucket;
-  int size;
-  int cap;
-  int limit;
+    struct eml_hashmap_entry *bucket;
+    int size;
+    int cap;
+    int limit;
 };
 
 /* create a hashmap */

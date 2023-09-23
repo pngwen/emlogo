@@ -32,15 +32,15 @@ extern const char *EML_TOKENS;
 enum eml_word_type { WORD = 0, INTEGER, FLOAT, TOKEN };
 
 union eml_word_field {
-  char *s;  /* string word */
-  int i;    /* integer word */
-  double d; /* floating point word */
+    char *s;  /* string word */
+    int i;    /* integer word */
+    double d; /* floating point word */
 };
 
 struct eml_word {
-  union eml_word_field field;
-  enum eml_word_type type;
-  unsigned int hash;
+    union eml_word_field field;
+    enum eml_word_type type;
+    unsigned int hash;
 };
 
 /* word creation functions */
@@ -57,7 +57,7 @@ char *eml_word_str(struct eml_word *w);
 /* word destructor */
 void eml_free_word(struct eml_word *w);
 
-/* 
+/*
  * Returns 1 if w1 = w2, 0 otherwise
  */
 int eml_word_equals(struct eml_word *w1, struct eml_word *w2);

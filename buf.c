@@ -3,19 +3,19 @@
  * Purpose: This is the implementation file for a dynamic buffer structure.
  *
  * MIT License
- * 
+ *
  * Copyright (c) 2023 Robert Lowe
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,14 +32,13 @@
 #define BUF_INFO(p) (((struct buf_info*) (p))-1)
 #define BUF_ALLOC(n) malloc(sizeof(struct buf_info) + (n))
 
-struct buf_info 
-{
+struct buf_info {
     unsigned int capacity;
     unsigned int length;
 };
 
 /* static reallocation function */
-static char *eml_buf_grow(char *buf, unsigned int nsize) 
+static char *eml_buf_grow(char *buf, unsigned int nsize)
 {
     int ncap = BUF_INFO(buf)->capacity;
     char *nbuf;
@@ -111,7 +110,7 @@ char *eml_buf_nappend(char *buf, char *bytes, int n)
 }
 
 
-/* Append the null terminated string onto the buffer. This may result in reallocation, so 
+/* Append the null terminated string onto the buffer. This may result in reallocation, so
    it should be called like this:
       buf = eml_buf_apend(char *buf, char *str);
    This function copies the null terminator. (which is included in the length!)

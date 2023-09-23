@@ -26,16 +26,17 @@
 #include "lexer.h"
 #include <stdio.h>
 
-int main() {
-  struct eml_lexer *lex;
-  struct eml_word *word;
+int main()
+{
+    struct eml_lexer *lex;
+    struct eml_word *word;
 
-  lex = eml_alloc_lexer(stdin);
-  do {
-    word = eml_lexer_next(lex);
-    if (lex->cur != EOF) {
-      printf("Type: %d Hash: %u Text: %s\n", word->type, word->hash,
-             eml_word_str(word));
-    }
-  } while (lex->cur != EOF);
+    lex = eml_alloc_lexer(stdin);
+    do {
+        word = eml_lexer_next(lex);
+        if (lex->cur != EOF) {
+            printf("Type: %d Hash: %u Text: %s\n", word->type, word->hash,
+                   eml_word_str(word));
+        }
+    } while (lex->cur != EOF);
 }

@@ -3,19 +3,19 @@
  * Purpose: This is the implementation file for a linked list data structure.
  *
  * MIT License
- * 
+ *
  * Copyright (c) 2023 Robert Lowe
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -42,7 +42,7 @@ void destroy_node(struct eml_list *l, struct eml_list_node *prev, struct eml_lis
 {
     /* nothing to do delete */
     if(!cur) return;
-    
+
     /* various unlinking cases */
     if(!prev) {
         /* handle deletion of the head */
@@ -175,8 +175,9 @@ void eml_list_remove(struct eml_list *l, void *data)
 
 
 /* remove the indexth node from the list  */
-void eml_list_remove_index(struct eml_list *l, int i) {
-    struct eml_list_node *prev, *cur;    
+void eml_list_remove_index(struct eml_list *l, int i)
+{
+    struct eml_list_node *prev, *cur;
 
     /* find the node and the previous one */
     for(cur = l->head; i && cur; cur=cur->next, i--) {

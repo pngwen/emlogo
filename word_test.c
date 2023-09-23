@@ -46,7 +46,7 @@ struct eml_word *get_word(const char *msg)
 {
     char buf[100];
     int i;
-    
+
     printf("%s", msg);
     fgets(buf, 100, stdin);
     i = strlen(buf)-1;
