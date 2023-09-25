@@ -41,13 +41,17 @@ static struct eml_list_node *alloc_node()
 void destroy_node(struct eml_list *l, struct eml_list_node *prev, struct eml_list_node *cur)
 {
     /* nothing to do delete */
-    if(!cur) return;
+    if(!cur) {
+        return;
+    }
 
     /* various unlinking cases */
     if(!prev) {
         /* handle deletion of the head */
         l->head = l->head->next;
-        if(!l->head) l->tail = NULL;
+        if(!l->head) {
+            l->tail = NULL;
+        }
     } else if(cur == l->tail) {
         /* handle the deletion of the tail */
         l->tail = prev;

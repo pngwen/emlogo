@@ -72,7 +72,9 @@ char *eml_buf_alloc()
 
     /* allocate enough room to store the buffer and info struct */
     buf = BUF_ALLOC(INIT_CAPACITY);
-    if(!buf) return buf;
+    if(!buf) {
+        return buf;
+    }
 
     /* point to the right part of the buffer */
     buf += sizeof(struct buf_info);
