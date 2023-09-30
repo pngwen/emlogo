@@ -28,18 +28,80 @@
 #include <string.h>
 #include "hashmap.h"
 #define EML_HASHMAP_INIT_CAP 256
+#define EML_HASHMAP_LOADFACTOR 80
 
 /* Helper function to allocate buckets and initialize them to null */
-struct eml_hashmap_bucket *eml_alloc_bucket(int n)
+static struct eml_hashmap_bucket *eml_alloc_bucket(int n)
 {
     return calloc(n, sizeof(struct eml_hashmap_bucket));
 }
 
+
+/* helper function to set up the hashmap with the given number of
+ * buckets. It leaves the size undisturbed.
+ */
+static void eml_hashmap_setup(struct eml_hashmap *h, int n) 
+{
+    h->bucket = calloc(n, sizeof(struct eml_hashmap_bucket));
+    h->cap = n;
+    h->limit = (h->cap * EML_HASHMAP_LOADFACTOR) / 100;
+}
+
+
+/* Helper function to rehash the map, doubling the number of buckets */
+static void eml_hashmap_rehash(struct eml_hashmap *h)
+{
+    struct eml_hashmap_bucket *obucket;
+    int ocap;
+    int i;
+
+    /* get the old information from the table */
+    obucket = h->bucket;
+    ocap = h->cap;
+
+    /* create the the new table */
+    eml_hashmap_setup(h, ocap * 2);
+
+    /* insert all the items from the old */
+    for(i=0; i<ocap; i++) {
+        if(obucket[i].word) {
+            eml_hashmap_set(obucket[i].word, obucket[i].data);
+        }
+    }
+
+    /* destroy the old bucket list */
+    free(obucket);
+}
+
+
 /* create a hashmap */
-struct eml_hashmap *eml_hashmap_alloc();
+struct eml_hashmap *eml_hashmap_alloc()
+{
+    struct eml_hashmap *h;
+
+    /* create the initial hashmap */
+    h = malloc(sizeof(struct eml_hashmap));
+    eml_hashmap_setup(h, EML_HASHMAP_INIT_CAP);
+
+    return h;
+}
+
 
 /* sets an item in the hashmap */
-void eml_hashmap_set(struct eml_hashmap *map, struct eml_word *word, void *data);
+void eml_hashmap_set(struct eml_hashmap *map, struct eml_word *word, void *data)
+{
+    int key; 
+
+    /* get the initial key */
+    key = word->hash % map->cap;
+
+    /* probe as needed */
+    while(map->bucket[key].word && ! eml_word_equals(map->bucket[key].word, word)) {
+        key = (key * key) + 1;
+        key %= map->cap;
+    }
+}
+
 
 /* retrieves an item from the hashmap */
 void *eml_hashmap_get(struct eml_hashmap *map, struct eml_word *word);

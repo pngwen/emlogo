@@ -34,8 +34,8 @@ struct eml_hashmap_bucket {
 };
 
 
-struct eml_bucket {
-    struct eml_hashmap_entry *bucket;
+struct eml_hashmap {
+    struct eml_hashmap_bucket *bucket;
     int size;
     int cap;
     int limit;
