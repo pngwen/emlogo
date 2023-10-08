@@ -23,20 +23,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "lexer.h"
 #include <stdio.h>
+#include "lexer.h"
+#include "hashmap.h"
 
 int main()
 {
     struct eml_lexer *lex;
     struct eml_word *word;
+    struct eml_hashmap *h;
+    void *count;
+
+    h=eml_hashmap_alloc();
 
     lex = eml_alloc_lexer(stdin);
     do {
-        word = eml_lexer_next(lex);
-        if (lex->cur != EOF) {
-            printf("Type: %d Hash: %u Text: %s\n", word->type, word->hash,
-                   eml_word_str(word));
+        if (!feof(stdin)) {
+            word = eml_lexer_next(lex);
+            count = eml_hashmap_get(h, word);
+            if(count) {
+                eml_hashmap_set(h, word, count+1);
+            } else {
+                eml_hashmap_set(h, word, (void*)1);
+            }
+            count = eml_hashmap_get(h, word);
+            printf("Type: %d Hash: %u Text: %s, Count: %d\n", 
+                    word->type, word->hash, eml_word_str(word), count);
         }
-    } while (lex->cur != EOF);
+    } while (!feof(stdin));
 }

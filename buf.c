@@ -119,7 +119,7 @@ char *eml_buf_nappend(char *buf, char *bytes, int n)
  */
 char *eml_buf_append(char *buf, char *str)
 {
-    eml_buf_nappend(buf, str, strlen(str)+1);
+    return eml_buf_nappend(buf, str, strlen(str)+1);
 }
 
 

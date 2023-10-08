@@ -65,12 +65,33 @@ static void eml_hashmap_rehash(struct eml_hashmap *h)
     /* insert all the items from the old */
     for(i=0; i<ocap; i++) {
         if(obucket[i].word) {
-            eml_hashmap_set(obucket[i].word, obucket[i].data);
+            eml_hashmap_set(h, obucket[i].word, obucket[i].data);
         }
     }
 
     /* destroy the old bucket list */
     free(obucket);
+}
+
+
+/* find the bucket fornthe given word */
+static int eml_hashmap_probe(struct eml_hashmap *map, struct eml_word *word) 
+{
+    int key;
+    int pd=1;
+
+    /* get the initial key */
+    key = word->hash % map->cap;
+
+    /* probe as needed */
+    while(map->bucket[key].word && ! eml_word_equals(map->bucket[key].word, word)) {
+        key = word->hash + (pd + pd*pd)/2;
+        key %= map->cap;
+
+        pd++;
+    }
+
+    return key;
 }
 
 
@@ -90,18 +111,25 @@ struct eml_hashmap *eml_hashmap_alloc()
 /* sets an item in the hashmap */
 void eml_hashmap_set(struct eml_hashmap *map, struct eml_word *word, void *data)
 {
-    int key; 
+    int key = eml_hashmap_probe(map, word);
 
-    /* get the initial key */
-    key = word->hash % map->cap;
+    /* set the data */
+    map->bucket[key].data = data;
 
-    /* probe as needed */
-    while(map->bucket[key].word && ! eml_word_equals(map->bucket[key].word, word)) {
-        key = (key * key) + 1;
-        key %= map->cap;
+    /* handle growth */
+    if(!map->bucket[key].word) {
+        map->bucket[key].word = word;
+        map->size++;
+        if(map->size >= map->limit) {
+           eml_hashmap_rehash(map); 
+        }
     }
 }
 
 
 /* retrieves an item from the hashmap */
-void *eml_hashmap_get(struct eml_hashmap *map, struct eml_word *word);
+void *eml_hashmap_get(struct eml_hashmap *map, struct eml_word *word)
+{
+    int key = eml_hashmap_probe(map, word);
+    return map->bucket[key].data;
+}
