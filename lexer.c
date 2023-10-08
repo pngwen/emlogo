@@ -39,7 +39,6 @@ const char* STOP_SYM = "[]";
 static void next_char(struct eml_lexer *lex);
 static void skip_to_word(struct eml_lexer *lex);
 static void set_text(struct eml_lexer *lex, struct eml_word *word);
-static void skip_to_line(struct eml_lexer *lex);
 static void consume(struct eml_lexer *lex);
 static int stop_word(struct eml_lexer *lex);
 
@@ -72,7 +71,7 @@ void free_lexer(struct eml_lexer *lex)
 }
 
 
-/* get the next word from the lexer */
+/* get the next word from the lexer, returns null on end of inpit */
 struct eml_word* eml_lexer_next(struct eml_lexer *lex)
 {
     int done;
@@ -82,6 +81,7 @@ struct eml_word* eml_lexer_next(struct eml_lexer *lex)
 
     /* get the start of the word */
     skip_to_word(lex);
+    if(feof(lex->file)) {return NULL;}
     done=stop_word(lex);
 
     /* scan the string */
@@ -133,14 +133,6 @@ static void skip_to_word(struct eml_lexer *lex)
             next_char(lex);
         }
     } while(!done);
-}
-
-
-static void skip_to_line(struct eml_lexer *lex)
-{
-    while(lex->cur != '\n' && lex->cur != EOF) {
-        next_char(lex);
-    }
 }
 
 

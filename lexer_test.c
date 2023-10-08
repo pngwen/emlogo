@@ -37,18 +37,15 @@ int main()
     h=eml_hashmap_alloc();
 
     lex = eml_alloc_lexer(stdin);
-    do {
-        if (!feof(stdin)) {
-            word = eml_lexer_next(lex);
-            count = eml_hashmap_get(h, word);
-            if(count) {
-                eml_hashmap_set(h, word, count+1);
-            } else {
-                eml_hashmap_set(h, word, (void*)1);
-            }
-            count = eml_hashmap_get(h, word);
-            printf("Type: %d Hash: %u Text: %s, Count: %d\n", 
-                    word->type, word->hash, eml_word_str(word), count);
+    while(word=eml_lexer_next(lex)) {
+        count = eml_hashmap_get(h, word);
+        if(count) {
+            eml_hashmap_set(h, word, count+1);
+        } else {
+            eml_hashmap_set(h, word, (void*)1);
         }
-    } while (!feof(stdin));
+        count = eml_hashmap_get(h, word);
+        printf("Type: %d Hash: %u Text: %s, Count: %d\n", 
+                word->type, word->hash, eml_word_str(word), count);
+    } 
 }

@@ -45,6 +45,6 @@ struct eml_lexer* eml_alloc_lexer(FILE *file);
 /* deallocate the lexer */
 void eml_free_lexer(struct eml_lexer *lex);
 
-/* get the next word from the lexer */
+/* get the next word from the lexer, returns null on end of inpit */
 struct eml_word* eml_lexer_next(struct eml_lexer *lex);
 #endif
