@@ -28,8 +28,12 @@
 #include "emlogo.h"
 #include "buf.h"
 
-/* A few global variables */
-char *buf; /* buffer for input */
+/* global variables */
+static char *buf; /* buffer for input */
+int buf_i;        /* buffer position */
+
+/* retrieve the next character from the buffer */
+static int buf_getchar(); 
 
 /* read a line into our buffer */
 static void eml_repl_readline();
@@ -47,6 +51,7 @@ void eml_node_free(struct eml_node *node);
 void eml_node_print(struct eml_node *node);
 
 
+
 int main()
 {
     struct eml_node *prog_node;
@@ -55,12 +60,17 @@ int main()
     buf = eml_buf_alloc();
 
     while(!feof(stdin)) {
-        eml_repl_readline();
         prog_node = eml_repl_process_line();
         eml_node_print(prog_node);
         printf("\n");
         eml_node_free(prog_node);
     }
+}
+
+/* retrieve the next character from the buffer */
+static int buf_getchar() 
+{
+    return buf[buf_i++];
 }
 
 
@@ -71,10 +81,15 @@ static void eml_repl_readline()
 
     /* start with an empty buffer */
     eml_buf_clear(buf);
+    buf_i = 0;
     while((c=getchar()) != '\n') {
         buf = eml_buf_nappend(buf, &c, 1);
     }
-    eml_buf_nappend(buf, &c, 1);
+    buf = eml_buf_nappend(buf, &c, 1);
+
+    /* put in the null terminator */
+    c = '\0';
+    buf = eml_buf_nappend(buf, &c, 1);
 }
 
 
@@ -88,8 +103,9 @@ static struct eml_node* eml_repl_process_line()
     struct eml_word *word;
 
     /* create the lexer and the list */
+    eml_repl_readline();
     file = fmemopen(buf, strlen(buf), "r");
-    lex = eml_alloc_lexer(file);
+    lex = eml_alloc_lexer(buf_getchar);
     list = eml_list_alloc();
     
     /* process the line */

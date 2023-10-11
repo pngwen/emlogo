@@ -26,21 +26,23 @@
  */
 #ifndef LEXER_H
 #define LEXER_H
-#include <stdio.h>
 #include "word.h"
+
+/* character provider */
+typedef int (*eml_getchar)();
 
 /* lexer state */
 struct eml_lexer {
-    FILE *file;        /* the stream we are reading */
-    int line;          /* line number we are reading */
-    int col;           /* column number we are readin*/
-    char *buf;         /* The temporary buffer for the lexeme */
-    char cur;          /* current character */
+    int line;               /* line number we are reading */
+    int col;                /* column number we are readin*/
+    char *buf;              /* The temporary buffer for the lexeme */
+    int cur;                /* current character */
+    eml_getchar getchar;    /* the character source */
 };
 
 
 /* Create a lexer for the given file stream */
-struct eml_lexer* eml_alloc_lexer(FILE *file);
+struct eml_lexer* eml_alloc_lexer(eml_getchar getchar);
 
 /* deallocate the lexer */
 void eml_free_lexer(struct eml_lexer *lex);

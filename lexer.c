@@ -44,17 +44,17 @@ static int stop_word(struct eml_lexer *lex);
 
 
 /* Create a lexer for the given file stream */
-struct eml_lexer* eml_alloc_lexer(FILE *file)
+struct eml_lexer* eml_alloc_lexer(eml_getchar getchar)
 {
     /* create the basic structure */
     struct eml_lexer *lex = malloc(sizeof(struct eml_lexer));
 
     /* initialize the fields */
-    lex->file = file;
     lex->line = 1;
     lex->buf = eml_buf_alloc();
     lex->col = 0;
     lex->cur = 0;
+    lex->getchar = getchar;
 
     return lex;
 }
@@ -81,7 +81,7 @@ struct eml_word* eml_lexer_next(struct eml_lexer *lex)
 
     /* get the start of the word */
     skip_to_word(lex);
-    if(feof(lex->file)) {return NULL;}
+    if(lex->cur == EOF) {return NULL;}
     done=stop_word(lex);
 
     /* scan the string */
@@ -104,7 +104,12 @@ struct eml_word* eml_lexer_next(struct eml_lexer *lex)
  ******************************************/
 static void next_char(struct eml_lexer *lex)
 {
-    int nc = fgetc(lex->file);
+    int nc = lex->getchar();
+
+    /* translate null character */
+    if(nc==0) {
+        nc = EOF;
+    }
 
     /* detect end of file or update line and col */
     if(nc == '\n') {
@@ -139,9 +144,10 @@ static void skip_to_word(struct eml_lexer *lex)
 static void consume(struct eml_lexer *lex)
 {
     char *buf;  /* buffer for reallocation, if needed. */
+    char c = lex->cur;
 
     /* add the character to the end */
-    eml_buf_nappend(lex->buf, &(lex->cur), 1);
+    eml_buf_nappend(lex->buf, &c, 1);
     next_char(lex);
 }
 

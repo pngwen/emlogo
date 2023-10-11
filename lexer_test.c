@@ -36,7 +36,7 @@ int main()
 
     h=eml_hashmap_alloc();
 
-    lex = eml_alloc_lexer(stdin);
+    lex = eml_alloc_lexer(getchar);
     while(word=eml_lexer_next(lex)) {
         count = eml_hashmap_get(h, word);
         if(count) {
