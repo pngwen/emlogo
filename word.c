@@ -69,9 +69,10 @@ struct eml_word *eml_stow(char *s)
     /* scan the string for numeric type */
     if ((len > 1 && *s == '-') || isdigit(*s)) {
         type = INTEGER;
-    }
-    if (*s == '.' && len > 1) {
-        w->type = FLOAT;
+    } else if (*s == '.' && len > 1) {
+        type = FLOAT;
+    } else {
+        type = WORD;
     }
 
     for (i = 1; type != WORD && i < len; i++) {
@@ -107,6 +108,7 @@ struct eml_word *eml_stow(char *s)
             for (tptr = EML_TOKENS; *tptr; tptr++) {
                 if (*tptr == *(w->field.s)) {
                     w->type = TOKEN;
+                    break;
                 }
             }
         }
