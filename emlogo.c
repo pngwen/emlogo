@@ -39,7 +39,7 @@ static int buf_getchar();
 static void eml_repl_readline();
 
 /* process a line of input */
-static struct eml_node* eml_repl_process_line();
+static struct eml_node* eml_repl_process_line(int level);
 
 /* allocate a node */
 struct eml_node* eml_node_alloc();
@@ -60,7 +60,7 @@ int main()
     buf = eml_buf_alloc();
 
     while(!feof(stdin)) {
-        prog_node = eml_repl_process_line();
+        prog_node = eml_repl_process_line(0);
         eml_node_print(prog_node);
         printf("\n");
         eml_node_free(prog_node);
@@ -94,25 +94,46 @@ static void eml_repl_readline()
 
 
 /* process a line of input */
-static struct eml_node* eml_repl_process_line()
+static struct eml_node* eml_repl_process_line(int level)
 {
-    FILE *file;
     struct eml_lexer *lex;
     struct eml_list *list;
     struct eml_node *node;
     struct eml_word *word;
+    int done = 0;
 
     /* create the lexer and the list */
-    eml_repl_readline();
-    file = fmemopen(buf, strlen(buf), "r");
+    if(!level) eml_repl_readline();
     lex = eml_alloc_lexer(buf_getchar);
     list = eml_list_alloc();
     
     /* process the line */
-    while((word=eml_lexer_next(lex))) {
-        node = eml_node_alloc();
-        node->type = EML_WORD;
-        node->data = word;
+    while(!done) {
+        word = eml_lexer_next(lex);
+        if(!word) {
+            if(!level) {
+                done = 1;
+                continue;
+            }
+            printf("> ");
+            eml_repl_readline();
+            lex->cur = 0;
+            continue;
+        }
+
+        if(word->type == TOKEN) {
+            if(word->field.s[0] == '[') {
+                node = eml_repl_process_line(level+1);
+            } else if(word->field.s[0] == ']') {
+                /* TODO: Handle error on unexpected ] */
+                done = 1;
+                continue;
+            }
+        } else {
+            node = eml_node_alloc();
+            node->type = EML_WORD;
+            node->data = word;
+        }
         eml_list_append(list, node);
     }
 
