@@ -29,8 +29,10 @@
 #include "buf.h"
 
 /* global variables */
-static char *buf; /* buffer for input */
+char *buf; /* buffer for input */
 int buf_i;        /* buffer position */
+struct eml_lexer *lex;
+
 
 /* retrieve the next character from the buffer */
 static int buf_getchar(); 
@@ -56,8 +58,9 @@ int main()
 {
     struct eml_node *prog_node;
 
-    /* initialize the input buffer */
+    /* initialize the input buffer and lexer */
     buf = eml_buf_alloc();
+    lex = eml_alloc_lexer(buf_getchar);
 
     while(!feof(stdin)) {
         prog_node = eml_repl_process_line(0);
@@ -65,7 +68,11 @@ int main()
         printf("\n");
         eml_node_free(prog_node);
     }
+
+    /* eml_free_lexer(lex); */
+    eml_buf_free(buf);
 }
+
 
 /* retrieve the next character from the buffer */
 static int buf_getchar() 
@@ -90,13 +97,15 @@ static void eml_repl_readline()
     /* put in the null terminator */
     c = '\0';
     buf = eml_buf_nappend(buf, &c, 1);
+
+    /* reset the lexer */
+    lex->cur = 0;
 }
 
 
 /* process a line of input */
 static struct eml_node* eml_repl_process_line(int level)
 {
-    struct eml_lexer *lex;
     struct eml_list *list;
     struct eml_node *node;
     struct eml_word *word;
@@ -104,7 +113,6 @@ static struct eml_node* eml_repl_process_line(int level)
 
     /* create the lexer and the list */
     if(!level) eml_repl_readline();
-    lex = eml_alloc_lexer(buf_getchar);
     list = eml_list_alloc();
     
     /* process the line */
@@ -117,7 +125,6 @@ static struct eml_node* eml_repl_process_line(int level)
             }
             printf("> ");
             eml_repl_readline();
-            lex->cur = 0;
             continue;
         }
 
@@ -176,6 +183,6 @@ void eml_node_print(struct eml_node *node)
     } else {
         printf("%s", "[ ");
         eml_list_apply(node->data, (eml_list_visitor)eml_node_print);
-        printf("%s", "]");
+        printf("%s", "] ");
     }
 }
