@@ -61,7 +61,7 @@ struct eml_lexer* eml_alloc_lexer(eml_getchar getchar)
 
 
 /* deallocate the lexer */
-void free_lexer(struct eml_lexer *lex)
+void eml_free_lexer(struct eml_lexer *lex)
 {
     /* deallocate the dynamic fields */
     eml_buf_free(lex->buf);

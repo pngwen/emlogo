@@ -69,7 +69,7 @@ int main()
         eml_node_free(prog_node);
     }
 
-    /* eml_free_lexer(lex); */
+    eml_free_lexer(lex); 
     eml_buf_free(buf);
 }
 
@@ -77,6 +77,10 @@ int main()
 /* retrieve the next character from the buffer */
 static int buf_getchar() 
 {
+    if(buf_i >= eml_buf_length(buf)) {
+        return EOF;
+    }
+
     return buf[buf_i++];
 }
 
@@ -84,19 +88,23 @@ static int buf_getchar()
 /* read a line into our buffer */
 static void eml_repl_readline()
 {
+    int ic;
     char c;
 
     /* start with an empty buffer */
     eml_buf_clear(buf);
     buf_i = 0;
-    while((c=getchar()) != '\n') {
+    while((ic=getchar()) != EOF && ic != '\n') {
+        c = (char) ic;
         buf = eml_buf_nappend(buf, &c, 1);
     }
-    buf = eml_buf_nappend(buf, &c, 1);
+    if(ic != EOF) {
+        c = (char) ic;
+        buf = eml_buf_nappend(buf, &c, 1);
+    }
 
     /* put in the null terminator */
-    c = '\0';
-    buf = eml_buf_nappend(buf, &c, 1);
+    buf = eml_buf_nappend(buf, "\0", 1);
 
     /* reset the lexer */
     lex->cur = 0;
@@ -124,6 +132,10 @@ static struct eml_node* eml_repl_process_line(int level)
                 continue;
             }
             printf("> ");
+            if(feof(stdin)) {
+                done = 1;
+                continue;
+            }
             eml_repl_readline();
             continue;
         }
