@@ -104,7 +104,7 @@ struct eml_word* eml_lexer_next(struct eml_lexer *lex)
  ******************************************/
 static void next_char(struct eml_lexer *lex)
 {
-    int nc = lex->getchar();
+    int nc = (lex->getchar)();
 
     /* translate null character */
     if(nc==0) {
